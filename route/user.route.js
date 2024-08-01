@@ -1,7 +1,7 @@
 const express = require("express");
 const UserModel = require("../model/user.model")
 const userRouter = express.Router();
-const bcrypt = require("bcrypt");
+const bcryptjs = require('bcryptjs');
 const jwt = require("jsonwebtoken")
 const auth = require("../middleware/auth.middleware")
 const ProductModel = require("../model/product.model")
@@ -14,7 +14,7 @@ userRouter.post("/register", async (req, res) => {
         if (existingUser) {
             return res.status(400).send({ "msg": "Email already exists." });
         }
-        bcrypt.hash(password, 10, async (err, hash) => {
+        bcryptjs.hash(password, 10, async (err, hash) => {
             if (err) {
                 res.status(500).send({ "msg": "Something went wrong." });
             } else {
@@ -34,7 +34,7 @@ userRouter.post("/login",async(req,res) => {
     try{
         const user = await UserModel.findOne({email})
         if(user){
-            bcrypt.compare(password,user.password,async(err,result) => {
+            bcryptjs.compare(password,user.password,async(err,result) => {
                 if(err){
                     res.status(500).send({"msg": "Something went wrong."});
                 }if(result){
