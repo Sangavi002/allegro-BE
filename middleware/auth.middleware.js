@@ -1,20 +1,24 @@
 const jwt = require("jsonwebtoken");
-const BlackListedTokenModel = require("../model/blacklisted.model")
+const BlackListedTokenModel = require("../model/blacklisted.model");
 
-const auth = async(req,res,next) => {
+const auth = async (req, res, next) => {
     let token = req.headers.authorization?.split(" ")[1];
-    const isBlacklisted = await BlackListedTokenModel.exists({ token });
-    if (isBlacklisted) {
-        return res.send("You are blacklisted, Please login again.");
+
+    if (!token) {
+        return res.status(401).json({ message: "No token provided. Please login." });
     }
-    try{
-        const decoded = jwt.verify(token,process.env.JWT_SECRET)
-        console.log(decoded);
+
+    try {
+        const isBlacklisted = await BlackListedTokenModel.exists({ token });
+        if (isBlacklisted) {
+            return res.status(401).json({ message: "Your token has been blacklisted. Please login again." });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.body.userId = decoded.id;
         next();
-    }catch(err){
-        res.status(404).send("You are not authenticated.")
+    } catch (err) {
+        return res.status(401).json({ message: "Invalid token. Please login again." });
     }
-}
+};
 
-module.exports= auth
+module.exports = auth;

@@ -16,28 +16,54 @@ collectionRouter.post('/collection', async (req, res) => {
     }
 });
 
-collectionRouter.get('/collection/:id', async (req, res) => {
-    try {
-        const collection = await CollectionModel.findById(req.params.id).populate('product');
-        if (!collection) {
-            return res.status(404).send({ "msg": "Collection not found" });
-        }
-        res.status(200).send(collection);
-    } catch (err) {
-        console.error(err);
-        res.status(404).send({ "msg": "Failed to retrieve collection."});
-    }
-});
+// collectionRouter.get('/collection/:id', async (req, res) => {
+//     try {
+//         const collection = await CollectionModel.findById(req.params.id).populate('product');
+//         console.log(collection)
+//         if (!collection) {
+//             return res.status(404).send({ "msg": "Collection not found" });
+//         }
+//         res.status(200).send(collection);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(404).send({ "msg": "Failed to retrieve collection."});
+//     }
+// });
 
 collectionRouter.get('/collections', async (req, res) => {
     try {
-        const collections = await CollectionModel.find()
+        const { id } = req.query;
+        let query = {};
+
+        const collections = await CollectionModel.find(query)
             .populate('product') 
             .exec();  
-        res.json(collections);
+
+        if (collections) {
+            if (id) {
+                let foundProduct = null;
+                collections.forEach(collection => {
+                    const product = collection.product.find(product => product._id.toString() === id);
+                    if (product) {
+                        foundProduct = product;
+                    }
+                });
+
+                if (foundProduct) {
+                    return res.json(foundProduct); 
+                } else {
+                    return res.status(404).send('Product not found');
+                }
+            } else {
+                return res.json(collections);
+            }
+        } else {
+            return res.status(404).send('Collection not found');
+        }
     } catch (error) {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 module.exports = collectionRouter;

@@ -59,22 +59,50 @@ cartRouter.get("/cartItems", auth, async (req, res) => {
     }
 });
 
-cartRouter.delete("/cartItems", auth, async (req, res) => {
-    const { userId, productId } = req.query;
+// Update item quantity
+cartRouter.put('/cartItems', auth, async (req, res) => {
+    const { userId, productId, quantity } = req.query;
 
-    if (!userId || !productId) {
-        return res.status(400).send("Invalid user ID or product ID.");
+    if (!userId || !productId || !quantity) {
+        return res.status(400).send("Invalid user ID, product ID, or quantity.");
     }
 
     try {
-        const cart = await CartModel.findOne({ userId }).populate('products.product');
+       
+        const cart = await CartModel.findOne({ userId });
         console.log(cart)
         if (!cart) {
             return res.status(404).send("Cart not found.");
         }
 
-        cart.products = cart.products.filter(product => product.product._id.toString() !== productId);
+        const product = cart.products.find(p => p.product.toString() === productId);
+        console.log(product)
+        if (product) {
+            product.quantity = Number(quantity);
+            await cart.save();
+            return res.status(200).send("Update the product quantity");
+        } else {
+            return res.status(404).send("Product not found in the cart.");
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
+
+
+cartRouter.delete('/cartItems', auth, async (req, res) => {
+    const { userId, productId } = req.query;
+    if (!userId || !productId) {
+        return res.status(400).send("Invalid user ID or product ID.");
+    }
+    try {
+        const cart = await CartModel.findOne({ userId });
+        if (!cart) {
+            return res.status(404).send("Cart not found.");
+        }
+        cart.products = cart.products.filter(p => p.product.toString() !== productId);
         await cart.save();
         res.status(200).send(cart);
     } catch (error) {
@@ -82,7 +110,7 @@ cartRouter.delete("/cartItems", auth, async (req, res) => {
     }
 });
 
+
 module.exports = cartRouter;
 
 
-module.exports = cartRouter;

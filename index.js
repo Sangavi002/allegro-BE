@@ -6,6 +6,7 @@ const userRouter = require("./route/user.route")
 const collectionRouter = require("./route/collection.route")
 const femaleRouter = require("./route/female.route")
 const cartRouter = require("./route/cart.route")
+const checkoutRouter = require("./route/checkout.route")
 
 const cors = require("cors")
 
@@ -19,6 +20,7 @@ app.use("/user",userRouter)
 app.use("/api",collectionRouter)
 app.use("/female",femaleRouter)
 app.use("/cart",cartRouter)
+app.use("/checkout",checkoutRouter)
 
 app.get("/",(req,res) => {
     res.status(200).send({"msg": "Health check"})

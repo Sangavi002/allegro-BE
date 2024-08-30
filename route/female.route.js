@@ -33,7 +33,6 @@ femaleRouter.get('/collections', async (req, res) => {
             .exec();
 
         if (collection) {
-            // If an id is provided, find the specific product within the collection
             if (id) {
                 const product = collection[0].product.find(product => product._id.toString() === id);
                 
