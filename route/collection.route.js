@@ -37,8 +37,8 @@ collectionRouter.get('/collections', async (req, res) => {
 
         const collections = await CollectionModel.find(query)
             .populate('product') 
-            .exec();  
-
+            .exec(); 
+        
         if (collections) {
             if (id) {
                 let foundProduct = null;

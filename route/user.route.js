@@ -64,6 +64,33 @@ userRouter.post("/product", async (req, res) => {
     }
 });
 
+userRouter.get('/products', async (req, res) => {
+    const { title } = req.query;
+
+    try {
+        if (title) {
+            const products = await ProductModel.find({ title: { $regex: title, $options: 'i' } });
+
+            if (products.length > 0) {
+                return res.status(200).send(products);
+            } else {
+                return res.status(404).send({ "msg": "No products found with the given title." });
+            }
+        } 
+        
+        const allProducts = await ProductModel.find();
+        if (allProducts.length > 0) {
+            return res.status(200).send(allProducts);
+        } else {
+            return res.status(404).send({ "msg": "No products available." });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ "msg": "Error retrieving products." });
+    }
+});
+
+
 userRouter.get("/logout", auth,async(req,res) => {
     try {
         let token = req.headers.authorization?.split(' ')[1];

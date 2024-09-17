@@ -59,7 +59,6 @@ cartRouter.get("/cartItems", auth, async (req, res) => {
     }
 });
 
-// Update item quantity
 cartRouter.put('/cartItems', auth, async (req, res) => {
     const { userId, productId, quantity } = req.query;
 
